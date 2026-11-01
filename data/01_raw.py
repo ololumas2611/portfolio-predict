@@ -22,12 +22,12 @@ def extract_header(items: list[dict[str, Any]]) -> list[str]:
             if key not in instrument_fields:
                 instrument_fields.append(key)
                 
-    return instrument_fields.extend([field for field in FIELDS if field not in instrument_fields])
+    return instrument_fields + [field for field in FIELDS if field not in instrument_fields]
 
 def get_values(items: list[dict[str, Any]], header: list[str]) -> list[list[Any]]:
     return [[(item.get("instrument") or {}).get(field, item.get(field)) for field in header] for item in items]
 
-def get_data(output: str | Path = "dividends.csv", settings: Settings | None = None, session: requests.Session | None = None, pause_seconds: float = 1.0) -> list[dict[str, Any]]:
+def get_data(output: str | Path = "output/dividends.csv", settings: Settings | None = None, session: requests.Session | None = None, pause_seconds: float = 1.0) -> list[dict[str, Any]]:
 
     settings = settings or get_settings()
     client = session or requests.Session()
@@ -53,7 +53,7 @@ def get_data(output: str | Path = "dividends.csv", settings: Settings | None = N
 
         if next_path:
             time.sleep(pause_seconds)
-            
+
     header = extract_header(items)
     write_csv(header, get_values(items, header), output)
     print(f"{len(items)} dividendos extraídos com sucesso para {output}")
